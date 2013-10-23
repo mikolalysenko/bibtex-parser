@@ -25,6 +25,7 @@ function BibtexParser() {
   this.input = "";
   
   this.entries = {};
+  this.comments = [];
   this.strings = {
       JAN: "January",
       FEB: "February",
@@ -214,7 +215,19 @@ function BibtexParser() {
   }
 
   this.comment = function() {
-    this.value(); // this is wrong
+    var start = this.pos;
+    while(true) {
+      if (this.pos == this.input.length) {
+        throw "Runaway comment";
+      }
+    
+      if (this.input[this.pos] != '}') {
+        this.pos++
+      } else {
+        this.comments.push(this.input.substring(start, this.pos));
+        return;
+      }
+    }
   }
 
   this.entry = function(d) {
@@ -236,6 +249,8 @@ function BibtexParser() {
       }
       this.match("}");
     }
+
+    this.entries['@comments'] = this.comments;
   }
 }
 
